@@ -1,27 +1,29 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
+const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter" });
+
 export const metadata: Metadata = {
   title: {
-    default: "ALL IN ONE — Công cụ & Trò chơi đa năng",
+    default: "ALL IN ONE — AI Productivity Suite",
     template: "%s | ALL IN ONE",
   },
-  description: "Nền tảng tích hợp công cụ tải video, chuyển đổi MP3, tính ngày, xem lịch âm và trò chơi giải trí — miễn phí, không quảng cáo.",
-  keywords: ["all in one", "tải video", "chuyển mp3", "lịch âm", "tính ngày", "nông trại", "solitaire"],
-  authors: [{ name: "ALL IN ONE" }],
+  description: "Nền tảng AI đa năng: tải video, tạo ảnh, nâng cấp ảnh, tính ngày, lịch âm và trò chơi — tất cả trong một workspace.",
+  keywords: ["all in one", "ai tools", "tải video", "tạo ảnh ai", "lịch âm", "nông trại"],
   openGraph: {
-    title: "ALL IN ONE — Công cụ & Trò chơi đa năng",
-    description: "Tất cả công cụ và trò chơi bạn cần trong một website duy nhất.",
+    title: "ALL IN ONE — AI Productivity Suite",
+    description: "Tất cả công cụ AI bạn cần trong một workspace duy nhất.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f9fafb" },
-    { media: "(prefers-color-scheme: dark)",  color: "#030712" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f9fc" },
+    { media: "(prefers-color-scheme: dark)",  color: "#0a0e1a" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -29,8 +31,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+    <html lang="vi" className={inter.variable} suppressHydrationWarning>
+      <body className="min-h-screen antialiased">
         <Navbar />
         {children}
         <Footer />

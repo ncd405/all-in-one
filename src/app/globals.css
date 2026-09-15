@@ -1,11 +1,57 @@
 @import "tailwindcss";
 
-:root { color-scheme: light dark; }
-html { scroll-behavior: smooth; }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root {
+  /* Design tokens — phong cách Designs.ai */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fc;
+  --bg-tertiary: #f1f3f9;
+  --border-light: #e8ecf3;
+  --border-medium: #d4dae6;
+  --text-primary: #0f1729;
+  --text-secondary: #4a5568;
+  --text-tertiary: #8894a8;
+  --accent: #6366f1;
+  --accent-soft: #eef2ff;
+}
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+.dark {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f1422;
+  --bg-tertiary: #161b2e;
+  --border-light: #1e2538;
+  --border-medium: #2a3348;
+  --text-primary: #f1f3f9;
+  --text-secondary: #b8c2d9;
+  --text-tertiary: #6b7793;
+  --accent: #818cf8;
+  --accent-soft: #1e1b4b;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* Micro-interactions — nhẹ nhàng như designs.ai */
+.tool-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08);
+}
+.dark .tool-card:hover {
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.4);
+}
