@@ -4,34 +4,35 @@ import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
-const inter = Inter({ subsets: ["latin", "vietnamese"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
-    default: "ALL IN ONE — AI Productivity Suite",
+    default: "ALL IN ONE — AI Creative Toolkit",
     template: "%s | ALL IN ONE",
   },
-  description: "Nền tảng AI đa năng: tải video, tạo ảnh, nâng cấp ảnh, tính ngày, lịch âm và trò chơi — tất cả trong một workspace.",
-  keywords: ["all in one", "ai tools", "tải video", "tạo ảnh ai", "lịch âm", "nông trại"],
+  description: "AI toolkit đa năng: tạo ảnh, tải video, chuyển định dạng, tính ngày, lịch âm và trò chơi — trong một workspace.",
+  keywords: ["ai toolkit", "tạo ảnh ai", "tải video", "lịch âm", "nông trại"],
   openGraph: {
-    title: "ALL IN ONE — AI Productivity Suite",
+    title: "ALL IN ONE — AI Creative Toolkit",
     description: "Tất cả công cụ AI bạn cần trong một workspace duy nhất.",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8f9fc" },
-    { media: "(prefers-color-scheme: dark)",  color: "#0a0e1a" },
-  ],
+  themeColor: "#0a0a0b",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" className={inter.variable} suppressHydrationWarning>
+    <html lang="vi" className={inter.variable}>
       <body className="min-h-screen antialiased">
         <Navbar />
         {children}

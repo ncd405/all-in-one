@@ -1,132 +1,232 @@
-import Link from "next/link";
-import {
-  Video, Music, Calculator, Moon, Sprout, LayoutGrid,
-  Sparkles, Wand2, Image as ImageIcon, ArrowRight, Zap
-} from "lucide-react";
-import AgentChat from "@/components/ai/AgentChat";
+"use client";
 
-const tools = [
-  { name: "Tạo Ảnh AI", desc: "DALL-E 3 — mô tả bằng tiếng Việt", icon: Wand2, href: "/tools/ai-image", accent: "pink", tag: "New" },
-  { name: "Nâng Cấp Ảnh", desc: "WebGPU AI upscaler 2x/4x", icon: ImageIcon, href: "/tools/ai-upscaler", accent: "cyan", tag: "New" },
-  { name: "Tải Video", desc: "YouTube & TikTok, không watermark", icon: Video, href: "/tools/video-downloader", accent: "red", tag: "Hot" },
-  { name: "Chuyển MP3", desc: "Trích xuất âm thanh chất lượng cao", icon: Music, href: "/tools/mp3-converter", accent: "purple", tag: null },
-  { name: "Tính Ngày", desc: "Khoảng cách ngày, tuần, tháng, năm", icon: Calculator, href: "/tools/date-calculator", accent: "blue", tag: null },
-  { name: "Lịch Âm", desc: "Âm dương lịch, can chi, con giáp", icon: Moon, href: "/tools/lunar-calendar", accent: "indigo", tag: null },
-  { name: "Nông Trại", desc: "Game kéo thả — trồng, tưới, thu hoạch", icon: Sprout, href: "/games/farm", accent: "emerald", tag: "Mới" },
-  { name: "Xếp Bài", desc: "Solitaire cổ điển", icon: LayoutGrid, href: "/games/solitaire", accent: "amber", tag: null },
+import Link from "next/link";
+import { useState } from "react";
+import {
+  Palette, Image as ImageIcon, Film, Video, Mic, Music,
+  ArrowRight, ArrowUpRight, Sparkles, Loader2
+} from "lucide-react";
+
+const tabs = [
+  { id: "image", label: "Tạo Ảnh", icon: Palette, href: "/tools/ai-image" },
+  { id: "upscale", label: "Nâng Cấp", icon: ImageIcon, href: "/tools/ai-upscaler" },
+  { id: "video", label: "Tải Video", icon: Film, href: "/tools/video-downloader" },
+  { id: "convert", label: "Chuyển MP3", icon: Music, href: "/tools/mp3-converter" },
+  { id: "date", label: "Tính Ngày", icon: Mic, href: "/tools/date-calculator" },
+  { id: "lunar", label: "Lịch Âm", icon: Video, href: "/tools/lunar-calendar" },
 ];
 
-const accentMap: Record<string, { bg: string; text: string; ring: string; glow: string }> = {
-  pink:    { bg: "bg-pink-50 dark:bg-pink-500/10",       text: "text-pink-600 dark:text-pink-400",       ring: "ring-pink-500/20",    glow: "group-hover:shadow-pink-500/10" },
-  cyan:    { bg: "bg-cyan-50 dark:bg-cyan-500/10",       text: "text-cyan-600 dark:text-cyan-400",       ring: "ring-cyan-500/20",    glow: "group-hover:shadow-cyan-500/10" },
-  red:     { bg: "bg-red-50 dark:bg-red-500/10",         text: "text-red-600 dark:text-red-400",         ring: "ring-red-500/20",     glow: "group-hover:shadow-red-500/10" },
-  purple:  { bg: "bg-purple-50 dark:bg-purple-500/10",   text: "text-purple-600 dark:text-purple-400",   ring: "ring-purple-500/20",  glow: "group-hover:shadow-purple-500/10" },
-  blue:    { bg: "bg-blue-50 dark:bg-blue-500/10",       text: "text-blue-600 dark:text-blue-400",       ring: "ring-blue-500/20",    glow: "group-hover:shadow-blue-500/10" },
-  indigo:  { bg: "bg-indigo-50 dark:bg-indigo-500/10",   text: "text-indigo-600 dark:text-indigo-400",   ring: "ring-indigo-500/20",  glow: "group-hover:shadow-indigo-500/10" },
-  emerald: { bg: "bg-emerald-50 dark:bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", ring: "ring-emerald-500/20", glow: "group-hover:shadow-emerald-500/10" },
-  amber:   { bg: "bg-amber-50 dark:bg-amber-500/10",     text: "text-amber-600 dark:text-amber-400",     ring: "ring-amber-500/20",   glow: "group-hover:shadow-amber-500/10" },
-};
+// Mockup preview cho từng tab
+function TabPreview({ tab }: { tab: string }) {
+  if (tab === "image") {
+    return (
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-6 shadow-2xl">
+        <p className="text-[11px] text-gray-400 mb-1">Prompt 4 / 7</p>
+        <p className="text-sm font-semibold text-black mb-3">Mô tả ảnh bạn muốn tạo?</p>
+        <div className="space-y-2">
+          {["Chú mèo phi hành gia uống cà phê", "Thành phố tương lai với cây xanh", "Chợ nổi miền Tây hoàng hôn"].map((t, i) => (
+            <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs ${i === 0 ? "border-[#22d3ee] bg-cyan-50" : "border-gray-200"}`}>
+              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-[#22d3ee] text-black" : "bg-gray-100 text-gray-500"}`}>{i+1}</span>
+              <span className={i === 0 ? "text-black font-medium" : "text-gray-500"}>{t}</span>
+            </div>
+          ))}
+        </div>
+        <button className="w-full mt-3 py-2 rounded-lg bg-[#22d3ee] text-black text-xs font-bold">
+          Tạo ảnh ngay
+        </button>
+      </div>
+    );
+  }
+  if (tab === "upscale") {
+    return (
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-6 shadow-2xl">
+        <p className="text-[11px] text-gray-400 mb-1">Nâng cấp ảnh</p>
+        <p className="text-sm font-semibold text-black mb-3">Chọn tỷ lệ 2x hoặc 4x</p>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center text-gray-400 text-xs">Ảnh gốc</div>
+          <div className="aspect-square rounded-lg bg-cyan-50 border-2 border-[#22d3ee] flex items-center justify-center text-[#22d3ee] text-xs font-bold">2x ✨</div>
+        </div>
+        <div className="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+          <div className="w-2/3 h-full bg-[#22d3ee]" />
+        </div>
+      </div>
+    );
+  }
+  if (tab === "video") {
+    return (
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-6 shadow-2xl">
+        <p className="text-[11px] text-gray-400 mb-1">Tải video</p>
+        <p className="text-sm font-semibold text-black mb-3">Dán link YouTube hoặc TikTok</p>
+        <div className="p-2.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-500 mb-3">
+          youtube.com/watch?v=...
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg border-2 border-[#22d3ee] bg-cyan-50 text-center text-xs font-bold text-[#22d3ee]">Video</div>
+          <div className="p-2 rounded-lg border border-gray-200 text-center text-xs text-gray-500">MP3</div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-6 shadow-2xl text-center">
+      <Loader2 className="w-8 h-8 animate-spin text-[#22d3ee] mx-auto mb-3" />
+      <p className="text-sm text-gray-500">Công cụ đang tải...</p>
+    </div>
+  );
+}
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState("image");
+  const activeHref = tabs.find(t => t.id === activeTab)?.href || "/tools/ai-image";
+
   return (
-    <main className="min-h-screen">
-      {/* ===== HERO — Gọn gàng, tập trung ===== */}
-      <section className="pt-16 pb-10 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef2ff] dark:bg-[#1e1b4b] text-indigo-600 dark:text-indigo-400 text-xs font-medium">
-              <Zap className="w-3 h-3" strokeWidth={2.5} /> AI Productivity Suite
+    <main className="min-h-screen bg-[#0a0a0b]">
+      {/* ===== HERO ===== */}
+      <section className="pt-20 pb-12 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Badge */}
+          <Link
+            href="/tools/ai-image"
+            className="inline-flex items-center gap-2 px-1 py-1 pr-4 rounded-full border border-[#3a3a40] bg-[#141416] hover:border-[#22d3ee] transition-colors mb-8"
+          >
+            <span className="px-3 py-1 rounded-full bg-[#22d3ee] text-black text-xs font-bold">
+              New
             </span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#0f1729] dark:text-white mb-3">
-            Làm mọi thứ với{" "}
-            <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
-              một workspace
-            </span>
+            <span className="text-sm text-white">Giới thiệu AI Agent</span>
+            <ArrowUpRight className="w-4 h-4 text-[#a1a1a6]" />
+          </Link>
+
+          {/* Heading */}
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.05] mb-6">
+            <span className="text-white">Your AI toolkit,</span>
+            <br />
+            <span className="text-[#22d3ee]">on demand</span>
           </h1>
-          <p className="text-[15px] text-[#4a5568] dark:text-[#b8c2d9] max-w-xl">
-            Tạo ảnh AI, tải video, chuyển đổi định dạng, xem lịch âm và chơi game — tất cả trong một nền tảng duy nhất.
+
+          {/* Subtitle */}
+          <p className="text-base sm:text-lg text-[#a1a1a6] max-w-2xl mx-auto leading-relaxed mb-10">
+            Chỉ cần một câu lệnh. AI Agent sẽ lên kế hoạch, chọn đúng công cụ và trả về ảnh, video, audio, tiện ích, trò chơi — sẵn sàng sử dụng ngay.
           </p>
+
+          {/* CTA */}
+          <Link
+            href="/tools/ai-image"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22d3ee] text-black font-semibold text-base hover:bg-[#06b6d4] transition-all hover:scale-105"
+          >
+            Bắt đầu ngay <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+          </Link>
         </div>
       </section>
 
-      {/* ===== MAIN CONTENT — Split layout ===== */}
-      <section className="px-4 sm:px-6 pb-16">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+      {/* ===== SHOWCASE CARD với TAB BAR ===== */}
+      <section className="px-4 sm:px-6 pb-20">
+        <div className="max-w-5xl mx-auto">
+          <div className="card-dark p-4 sm:p-6 md:p-10">
 
-          {/* Left: Tool grid */}
-          <div>
-            {/* Section header */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-[#0f1729] dark:text-white tracking-tight">
-                Công cụ
-              </h2>
-              <span className="text-xs text-[#8894a8]">{tools.length} tiện ích</span>
-            </div>
-
-            {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {tools.map((t) => {
+            {/* Tab bar — signature của designs.ai */}
+            <div className="flex items-center justify-center gap-1 sm:gap-2 mb-8 flex-wrap">
+              {tabs.map((t) => {
                 const Icon = t.icon;
-                const a = accentMap[t.accent];
+                const active = activeTab === t.id;
                 return (
-                  <Link
-                    key={t.name}
-                    href={t.href}
-                    className={`tool-card group relative flex items-start gap-3.5 p-4 rounded-xl bg-white dark:bg-[#0f1422] border border-[#e8ecf3] dark:border-[#1e2538] hover:border-[#d4dae6] dark:hover:border-[#2a3348] ${a.glow}`}
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all ${
+                      active
+                        ? "bg-white text-black shadow-xl scale-105"
+                        : "text-[#71717a] hover:text-white hover:bg-[#1a1a1c]"
+                    }`}
+                    title={t.label}
                   >
-                    <div className={`shrink-0 w-10 h-10 rounded-lg ${a.bg} ${a.text} flex items-center justify-center ring-1 ${a.ring}`}>
-                      <Icon className="w-5 h-5" strokeWidth={1.75} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-medium text-[14px] text-[#0f1729] dark:text-white truncate">
-                          {t.name}
-                        </h3>
-                        {t.tag && (
-                          <span className={`shrink-0 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${a.bg} ${a.text}`}>
-                            {t.tag}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[13px] text-[#8894a8] leading-snug line-clamp-2">
-                        {t.desc}
-                      </p>
-                    </div>
-                    <ArrowRight className="shrink-0 w-4 h-4 text-[#d4dae6] dark:text-[#2a3348] group-hover:text-[#8894a8] transition-colors mt-1" />
-                  </Link>
+                    <Icon className="w-5 h-5" strokeWidth={active ? 2.25 : 1.75} />
+                  </button>
                 );
               })}
             </div>
 
-            {/* Info strip */}
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              {[
-                { k: "Miễn phí", v: "Không giới hạn" },
-                { k: "Bảo mật", v: "Không tracking" },
-                { k: "Nhanh", v: "WebGPU AI" },
-              ].map((s) => (
-                <div key={s.k} className="p-3 rounded-xl bg-white dark:bg-[#0f1422] border border-[#e8ecf3] dark:border-[#1e2538] text-center">
-                  <p className="text-[11px] uppercase tracking-wider text-[#8894a8] mb-0.5">{s.k}</p>
-                  <p className="text-[13px] font-medium text-[#0f1729] dark:text-white">{s.v}</p>
-                </div>
-              ))}
+            {/* Preview area */}
+            <div className="bg-[#0a0a0b] rounded-2xl border border-[#26262a] p-6 sm:p-12 min-h-[380px] flex items-center justify-center">
+              <TabPreview tab={activeTab} />
             </div>
+
+            {/* Bottom CTA of card */}
+            <div className="mt-6 flex justify-center">
+              <Link
+                href={activeHref}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#141416] border border-[#3a3a40] text-white text-sm font-medium hover:border-[#22d3ee] transition-colors"
+              >
+                Mở {tabs.find(t => t.id === activeTab)?.label}
+                <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FEATURE CARDS ===== */}
+      <section className="px-4 sm:px-6 pb-20">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card 1 */}
+          <div className="card-dark p-8">
+            <div className="bg-white rounded-2xl p-5 mb-6 aspect-[4/3] flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-white to-blue-50" />
+              <div className="relative grid grid-cols-2 gap-3 w-full max-w-xs">
+                {[0,1,2,3].map(i => (
+                  <div key={i} className="aspect-square rounded-lg bg-white border border-gray-200 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-[#22d3ee]" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">Mọi công cụ, một nơi</h3>
+            <p className="text-[#a1a1a6] leading-relaxed">
+              Từ tạo ảnh AI, nâng cấp ảnh, tải video đến tiện ích hàng ngày — tất cả được thiết kế để phối hợp với nhau trong cùng một workspace.
+            </p>
           </div>
 
-          {/* Right: AI Chat */}
-          <div className="lg:sticky lg:top-20 lg:self-start">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-[#0f1729] dark:text-white tracking-tight">
-                Trợ lý AI
-              </h2>
-              <span className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Online
-              </span>
+          {/* Card 2 */}
+          <div className="card-dark p-8">
+            <div className="bg-white rounded-2xl p-5 mb-6 aspect-[4/3] flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white via-cyan-50 to-teal-50" />
+              <div className="relative w-full max-w-xs space-y-2">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-gray-200">
+                  <div className="w-6 h-6 rounded-full bg-[#22d3ee]" />
+                  <div className="flex-1 h-2 rounded bg-gray-100" />
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                  <div className="w-6 h-6 rounded-full bg-gray-200" />
+                  <div className="flex-1 h-2 rounded bg-gray-100" />
+                </div>
+                <div className="ml-4 flex items-center gap-2 p-2 rounded-lg bg-cyan-50 border border-[#22d3ee]/30">
+                  <Sparkles className="w-4 h-4 text-[#22d3ee]" />
+                  <div className="flex-1 h-2 rounded bg-[#22d3ee]/30" />
+                </div>
+              </div>
             </div>
-            <AgentChat />
+            <h3 className="text-2xl font-bold text-white mb-3">AI Agent thông minh</h3>
+            <p className="text-[#a1a1a6] leading-relaxed">
+              Chat trực tiếp với AI để được hướng dẫn sử dụng công cụ, gợi ý prompt, hoặc tự động chọn công cụ phù hợp với nhu cầu của bạn.
+            </p>
           </div>
+        </div>
+      </section>
+
+      {/* ===== CTA CUỐI ===== */}
+      <section className="px-4 sm:px-6 pb-20">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
+            Sẵn sàng bắt đầu?
+          </h2>
+          <p className="text-[#a1a1a6] mb-8">
+            Miễn phí. Không quảng cáo. Không cần đăng ký.
+          </p>
+          <Link
+            href="/tools/ai-image"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-[#22d3ee] text-black font-semibold hover:bg-[#06b6d4] transition-all hover:scale-105"
+          >
+            Tạo ảnh AI đầu tiên <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+          </Link>
         </div>
       </section>
     </main>
