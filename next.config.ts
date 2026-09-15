@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
-
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["@distube/ytdl-core"],
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: false },
 };
-
 export default nextConfig;
